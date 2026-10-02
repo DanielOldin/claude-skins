@@ -320,7 +320,7 @@ function cardWithCopy(look: Look, Svg: SvgElement, built: { source: string; alt:
         ''
       ) : (
         <Box position="absolute" top={1} right={3}>
-          <Button key={key} label="⧉ Copy" plain dimColor onPress={() => copy(text)} />
+          <Button key={key} label="Copy" plain dimColor onPress={() => copy(text)} />
         </Box>
       )}
     </Box>
@@ -348,7 +348,7 @@ export function copyRow(look: Look, key: string, text: string) {
 
   return (
     <Box flexDirection="row" justifyContent="flex-end">
-      <Button key={key} label="⧉ Copy" plain dimColor onPress={() => copy(text)} />
+      <Button key={key} label="Copy" plain dimColor onPress={() => copy(text)} />
     </Box>
   )
 }
