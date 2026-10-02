@@ -501,17 +501,18 @@ reply width: ${lastColumns} columns`
     // Compacting mid-turn would cut the turn's own context out from under it.
     // Runs Claude Code's own /compact, so the person sees its usual progress and result.
     // Work a press starts is abandoned when the press ends, which cancels a compaction
-    // still running, so a timer starts it in a dispatch of its own. The button hides
-    // until that run ends, so repeated presses do not queue one /compact each.
+    // still running, so a timer starts it in a dispatch of its own, which returns the run
+    // so that dispatch lasts until the compaction ends. The button hides until then, so
+    // repeated presses do not queue one /compact each.
     const isCompacting = await read($, compactingAtom)
     const compact = () => {
       void update($, compactingAtom, () => true)
-      $.clock.after(1, () => {
+      $.clock.after(1, () =>
         $.command
           .run({ command: 'compact' })
           .catch((error: unknown) => $.ui.toast(`Compacting failed: ${error instanceof Error ? error.message : String(error)}`))
-          .finally(() => void update($, compactingAtom, () => false))
-      })
+          .finally(() => update($, compactingAtom, () => false)),
+      )
     }
 
     return (
