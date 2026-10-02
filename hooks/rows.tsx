@@ -319,7 +319,7 @@ function cardWithCopy(look: Look, Svg: SvgElement, built: { source: string; alt:
       {copy === undefined ? (
         ''
       ) : (
-        <Box position="absolute" top={0} right={1}>
+        <Box position="absolute" top={1} right={3}>
           <Button key={key} label="Copy" plain dimColor onPress={() => copy(text)} />
         </Box>
       )}
