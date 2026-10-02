@@ -1,10 +1,10 @@
 import type { Palette } from './skin'
-import { CONTROL_SLOT, escape, fitText, MONO, riseDelay, svgCard, tint } from './svg-kit'
+import { CONTROL_SLOT, escape, HEADER_MID, fitText, MONO, riseDelay, svgCard, tint } from './svg-kit'
 
 // A fenced code block as a card: the language and line count in a header, line numbers
 // in a gutter, and light highlighting of comments, strings, numbers and keywords.
 
-const HEADER_H = 44
+const HEADER_H = 56
 const LINE_H = 20
 const CODE = 12.5
 const MAX_LINES = 80
@@ -96,8 +96,8 @@ export function codeSvg(code: string, lang: string, palette: Palette, width: num
   const footer = hidden > 0 ? `<text x="${gutter}" y="${HEADER_H + 8 + lines.length * LINE_H + 14}" font-size="11.5" style="fill:${palette.muted}">${hidden} more lines</text>` : ''
   const height = HEADER_H + 8 + lines.length * LINE_H + (hidden > 0 ? 28 : 10)
   const header = [
-    `<text x="16" y="27" font-size="11" style="fill:${palette.muted};letter-spacing:.1em;font-weight:600">${escape((lang || 'code').toUpperCase())}</text>`,
-    `<text x="${width - 16 - (hasControl ? CONTROL_SLOT : 0)}" y="27" text-anchor="end" font-size="11" style="fill:${palette.muted}">${all.length} line${all.length === 1 ? '' : 's'}</text>`,
+    `<text x="16" y="${HEADER_MID + 4}" font-size="11" style="fill:${palette.muted};letter-spacing:.1em;font-weight:600">${escape((lang || 'code').toUpperCase())}</text>`,
+    `<text x="${width - 16 - (hasControl ? CONTROL_SLOT : 0)}" y="${HEADER_MID + 4}" text-anchor="end" font-size="11" style="fill:${palette.muted}">${all.length} line${all.length === 1 ? '' : 's'}</text>`,
     `<line x1="0" y1="${HEADER_H - 0.5}" x2="${width}" y2="${HEADER_H - 0.5}" stroke="${palette.muted}" stroke-opacity=".3"/>`,
     `<g transform="translate(0 ${HEADER_H})">${tint(palette, 0, gutter - 4, height - HEADER_H, 0.04)}</g>`,
   ].join('')

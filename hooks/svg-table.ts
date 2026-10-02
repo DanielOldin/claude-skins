@@ -1,6 +1,6 @@
 import type { Align, Table } from './markdown'
 import type { Palette } from './skin'
-import { CONTROL_SLOT, escape, measure as measureAt, MONO, svgCard } from './svg-kit'
+import { CONTROL_SLOT, escape, HEADER_MID, measure as measureAt, MONO, svgCard } from './svg-kit'
 
 // A table as an animated vector card in the skin's colours, with no background of its
 // own so the page shows through, for the surfaces that draw `Svg` (the desktop app).
@@ -9,7 +9,7 @@ import { CONTROL_SLOT, escape, measure as measureAt, MONO, svgCard } from './svg
 
 const SIZE = 15
 const LINE_H = 21
-const HEADER_H = 48
+const HEADER_H = 58
 const ROW_PAD_Y = 12
 const MIN_ROW_H = 44
 const MAX_CELL_LINES = 6
@@ -198,7 +198,7 @@ export function tableSvg(table: Table, palette: Palette, width: number, hasContr
     .map((cell, i) => {
       const [text = ''] = wrapCell(cell.toUpperCase(), widths[i] ?? MIN_COL, false, 1)
 
-      return `<text x="${xOf(lefts[i] ?? 0, widths[i] ?? 0, align(i))}" y="${HEADER_H / 2 + 4}" text-anchor="${anchorOf(align(i))}" class="head">${escape(text)}</text>`
+      return `<text x="${xOf(lefts[i] ?? 0, widths[i] ?? 0, align(i))}" y="${HEADER_MID + 4}" text-anchor="${anchorOf(align(i))}" class="head">${escape(text)}</text>`
     })
     .join('')
 
