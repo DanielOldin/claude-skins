@@ -48,9 +48,9 @@ Needs Claude Code 2.1.287 or later, in a terminal or the desktop app's Code tab.
 |---|---|---|
 | Tool calls | A line icon per kind, a spinning ring while it runs, lines changed and time taken | A node on the turn's rail with the same facts |
 | Edits | A diff card: file, `+N −M`, numbered changed lines in green and red | Claude Code's own diff |
-| Shell commands | A terminal card: status pill, output with stderr apart, long output folded | Claude Code's own output |
-| Tables in replies | An animated card: header rule, zebra rows, swatches for colours, coloured diffs | A cell grid with a header band and zebra rows |
-| Code blocks in replies | A card with the language, line numbers and highlighting | Claude Code's own markdown |
+| Shell commands | A terminal card: status pill, output with stderr apart, long output folded, and a Copy button for the output | Claude Code's own output |
+| Tables in replies | An animated card: header rule, zebra rows, swatches for colours, coloured diffs; Copy gives the markdown | A cell grid with a header band and zebra rows, and the same Copy |
+| Code blocks in replies | A card with the language, line numbers and highlighting, and a Copy button | Claude Code's own markdown, and a Copy button |
 | Spinner | An animated icon per phase: thinking, tool use, writing, waiting | The skin's word with a band of light through it |
 | Above the prompt | Rings for context and each plan limit, a Compact button, and a nudge to compact from 70% context | Block meters and the same button |
 | Turn footer | (not raised on desktop) | Time, tool count and lines changed |
@@ -77,7 +77,7 @@ Your choices are remembered across sessions.
 
 It draws and remembers. It reads the session's directory, your context and plan usage, and Claude
 Code's theme setting; keeps its settings in the mod store; registers one tool for your agent; and
-compacts only when you press Compact. It starts no process, touches no file and makes no network call.
+compacts only when you press Compact, and copies only when you press Copy. It starts no process, touches no file and makes no network call.
 Check it yourself:
 
 ```bash

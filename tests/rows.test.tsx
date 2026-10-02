@@ -283,9 +283,12 @@ test('a table wider than its share spans the column instead of running off it', 
       requestId: 'r2',
       props: { text: wide, isFirstOfReply: true },
     })
-    const frame = (await ui.find({ type: 'Box' })) as { children?: readonly { props?: { width?: unknown } }[] }
+    type Node = { props?: { width?: unknown }; children?: readonly Node[] }
+    const reply = (await ui.find({ type: 'Box' })) as Node
+    // The reply's column holds the table's own column: the framed table, then its Copy row.
+    const frame = reply.children?.[0]?.children?.[0]
 
-    expect(frame.children?.[0]?.props?.width).toBe('100%')
+    expect(frame?.props?.width).toBe('100%')
     expect(await ui.find({ type: 'Text', text: /…$/ })).toBeDefined()
     await ui.unmount()
   }
@@ -425,4 +428,33 @@ test('on a light Claude Code theme the skin draws dark text for a light backgrou
 
   const row = await $.ui.mount(toolUse(call('Bash', { command: 'ls' })))
   expect(spanColor(await row.find({ type: 'Text', text: /Bash/ }), 'Bash')).toBe('#111111')
+})
+
+test('code blocks, tables and shell output get a Copy button that copies their text', async ($, on) => {
+  stubEngine(on)
+  const copied: string[] = []
+  on('ui.copy', ($, e) => {
+    copied.push(e.text)
+    return { value: { isCopied: true } }
+  })
+
+  const text = 'Run:\n\n```ts\nconst a = 1\n```\n\n| A | B |\n|---|---|\n| 1 | 2 |'
+
+  for (const surface of SURFACES) {
+    const ui = await $.ui.mount({ ...SITE, surface, component: 'AssistantMessage', requestId: `cp-${surface}`, props: { text, isFirstOfReply: true } })
+    await ui.press({ key: 'copy-1' })
+    await ui.press({ key: 'copy-2' })
+    await ui.unmount()
+  }
+
+  const shell = await $.ui.mount({
+    ...SITE,
+    surface: 'desktop',
+    component: 'ToolResult',
+    requestId: 'cp-sh',
+    props: { tool_use_id: 'cp-sh', tool: 'Bash', output: { stdout: 'built ok', stderr: '', interrupted: false }, isErrored: false },
+  })
+  await shell.press({ key: 'copy-output' })
+
+  expect(copied).toEqual(['const a = 1', '| A | B |\n| --- | --- |\n| 1 | 2 |', 'const a = 1', '| A | B |\n| --- | --- |\n| 1 | 2 |', 'built ok'])
 })

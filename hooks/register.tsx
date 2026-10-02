@@ -75,13 +75,19 @@ async function refreshTheme($: EngineInterface): Promise<void> {
 
 // Every surface's element table names Svg, but the terminal draws it as nothing, so
 // vector icons are for the other surfaces only.
-const lookOf = (ui: Ui & { Svg?: SvgElement }, active: Active, surface: RenderSurface): Look => ({
+const lookOf = (
+  ui: Ui & { Svg?: SvgElement },
+  active: Active,
+  surface: RenderSurface,
+  copy?: (text: string) => void,
+): Look => ({
   ui,
   skin: active.skin,
   icons: ICONS[active.prefs.icons],
   prefs: active.prefs,
   surface,
   ...(surface !== 'terminal' && ui.Svg !== undefined ? { svg: ui.Svg } : {}),
+  ...(copy === undefined ? {} : { copy }),
 })
 
 // Made skins from the store, each checked again: the store may hold an older shape.
@@ -360,7 +366,10 @@ reply width: ${lastColumns} columns`
   on('ui.render', { component: 'ToolResult' }, async ($, e, next) => {
     const active = await activeSkin($)
     const output = e.props.output as { stdout?: unknown } | null
-    const look = active === null ? undefined : lookOf($.ui.resolve(e), active, e.surface)
+    const copy = (text: string) => {
+      void $.ui.copy({ text, surface: e.surface }).then(result => $.ui.toast(result.isCopied ? 'Copied' : 'Could not copy here'))
+    }
+    const look = active === null ? undefined : lookOf($.ui.resolve(e), active, e.surface, copy)
     const columns = e.viewport?.columns ?? 100
 
     // The desktop gets cards: a diff for an edit, a terminal for a shell command.
@@ -425,8 +434,11 @@ reply width: ${lastColumns} columns`
     // Every surface's table names Svg, but the terminal draws it as nothing.
     const ui = $.ui.resolve(e)
     lastColumns = e.viewport?.columns
+    const copy = (copied: string) => {
+      void $.ui.copy({ text: copied, surface: e.surface }).then(result => $.ui.toast(result.isCopied ? 'Copied' : 'Could not copy here'))
+    }
 
-    return replyRows(lookOf(ui, active, e.surface), segments, e.viewport?.columns ?? 100, e.surface !== 'terminal' && 'Svg' in ui ? ui.Svg : undefined)
+    return replyRows(lookOf(ui, active, e.surface, copy), segments, e.viewport?.columns ?? 100, e.surface !== 'terminal' && 'Svg' in ui ? ui.Svg : undefined)
   })
 
   // The terminal's spinner gets the skin's word with a shimmer; the desktop's keeps its

@@ -31,6 +31,8 @@ export type Look = {
   surface: RenderSurface
   // The vector element where the surface draws one: icons replace glyphs there.
   svg?: SvgElement
+  // Puts text on the clipboard of the surface drawing; absent where nothing can copy.
+  copy?: (text: string) => void
 }
 
 export type Call = {
@@ -317,21 +319,51 @@ function tableCard(look: Look, table: Table, Svg: SvgElement, columns: number) {
   )
 }
 
+// A table as markdown again, for the clipboard.
+const tableMarkdown = (table: Table): string =>
+  [table.header, table.header.map(() => '---'), ...table.rows].map(cells => `| ${cells.join(' | ')} |`).join('\n')
+
+// A small Copy button under a card or block, flush right; nothing where nothing can copy.
+export function copyRow(look: Look, key: string, text: string) {
+  const { Box, Button } = look.ui
+  const copy = look.copy
+
+  if (copy === undefined) {
+    return ''
+  }
+
+  return (
+    <Box flexDirection="row" justifyContent="flex-end">
+      <Button key={key} label="Copy" plain dimColor onPress={() => copy(text)} />
+    </Box>
+  )
+}
+
 export function replyRows(look: Look, segments: readonly Segment[], maxWidth: number, Svg?: SvgElement) {
   const { Box, Markdown } = look.ui
 
   return (
     <Box flexDirection="column">
-      {segments.map(segment => {
+      {segments.map((segment, i) => {
         if (segment.kind === 'text') {
           return <Markdown text={segment.text} />
         }
 
         if (segment.kind === 'code') {
-          return Svg === undefined ? <Markdown text={segment.raw} /> : codeCard(look, segment.lang, segment.code, Svg, maxWidth)
+          return (
+            <Box flexDirection="column">
+              {Svg === undefined ? <Markdown text={segment.raw} /> : codeCard(look, segment.lang, segment.code, Svg, maxWidth)}
+              {copyRow(look, `copy-${i}`, segment.code)}
+            </Box>
+          )
         }
 
-        return Svg === undefined ? tableRows(look, segment, maxWidth) : tableCard(look, segment, Svg, maxWidth)
+        return (
+          <Box flexDirection="column">
+            {Svg === undefined ? tableRows(look, segment, maxWidth) : tableCard(look, segment, Svg, maxWidth)}
+            {copyRow(look, `copy-${i}`, tableMarkdown(segment))}
+          </Box>
+        )
       })}
     </Box>
   )
@@ -429,7 +461,15 @@ export function diffCard(look: Look, Svg: SvgElement, input: DiffInput, shownPat
 }
 
 export function terminalCard(look: Look, Svg: SvgElement, output: ShellOutput, isErrored: boolean, columns: number) {
-  return card(look, Svg, terminalSvg(output, isErrored, look.skin.palette, cardWidth(columns)))
+  const { Box } = look.ui
+  const text = [output.stdout, output.stderr].filter(part => part.trim() !== '').join('\n')
+
+  return (
+    <Box flexDirection="column">
+      {card(look, Svg, terminalSvg(output, isErrored, look.skin.palette, cardWidth(columns)))}
+      {text === '' ? '' : copyRow(look, 'copy-output', text)}
+    </Box>
+  )
 }
 
 // From this full, the band suggests compacting and makes it the main action.
