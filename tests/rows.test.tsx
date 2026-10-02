@@ -283,12 +283,15 @@ test('a table wider than its share spans the column instead of running off it', 
       requestId: 'r2',
       props: { text: wide, isFirstOfReply: true },
     })
-    type Node = { props?: { width?: unknown }; children?: readonly Node[] }
+    type Node = { props?: { width?: unknown; position?: unknown; top?: unknown }; children?: readonly Node[] }
     const reply = (await ui.find({ type: 'Box' })) as Node
-    // The reply's column holds the table's own column: the framed table, then its Copy row.
-    const frame = reply.children?.[0]?.children?.[0]
+    const frame = reply.children?.[0]
+    // Copy sits on the frame's top border, laid over it at the right.
+    const control = frame?.children?.at(-1)
 
     expect(frame?.props?.width).toBe('100%')
+    expect(control?.props?.position).toBe('absolute')
+    expect(control?.props?.top).toBe(-1)
     expect(await ui.find({ type: 'Text', text: /…$/ })).toBeDefined()
     await ui.unmount()
   }

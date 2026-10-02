@@ -269,8 +269,9 @@ const JUSTIFY = { left: 'flex-start', right: 'flex-end', center: 'center' } as c
 const NATURAL_SHARE = 0.55
 
 // A grid of cells, so columns line up in the terminal's monospace and in the desktop
-// app's proportional font alike.
-export function tableRows(look: Look, table: Table, maxWidth: number) {
+// app's proportional font alike. `control`, such as a Copy button, sits on the frame's
+// top border at the right, as ╭──── Copy ─╮.
+export function tableRows(look: Look, table: Table, maxWidth: number, control?: ReturnType<Ui['Button']>) {
   const { Box, Text } = look.ui
   const { palette } = look.skin
   const widths = columnWidths(table, maxWidth - 4, CELL_PAD * 2)
@@ -302,6 +303,13 @@ export function tableRows(look: Look, table: Table, maxWidth: number) {
     >
       {row(table.header, true, palette.surface)}
       {table.rows.map((cells, i) => row(cells, false, i % 2 === 1 ? palette.zebra : undefined))}
+      {control === undefined ? (
+        ''
+      ) : (
+        <Box position="absolute" top={-1} right={1}>
+          {control}
+        </Box>
+      )}
     </Box>
   )
 }
@@ -336,6 +344,14 @@ function tableCard(look: Look, table: Table, Svg: SvgElement, columns: number, k
 // A table as markdown again, for the clipboard.
 const tableMarkdown = (table: Table): string =>
   [table.header, table.header.map(() => '---'), ...table.rows].map(cells => `| ${cells.join(' | ')} |`).join('\n')
+
+// A Copy button padded to sit on a border line; nothing where nothing can copy.
+function copyButton(look: Look, key: string, text: string) {
+  const { Button } = look.ui
+  const copy = look.copy
+
+  return copy === undefined ? undefined : <Button key={key} label=" Copy " plain dimColor onPress={() => copy(text)} />
+}
 
 // A small Copy button under a card or block, flush right; nothing where nothing can copy.
 export function copyRow(look: Look, key: string, text: string) {
@@ -375,10 +391,7 @@ export function replyRows(look: Look, segments: readonly Segment[], maxWidth: nu
         }
 
         return Svg === undefined ? (
-          <Box flexDirection="column">
-            {tableRows(look, segment, maxWidth)}
-            {copyRow(look, `copy-${i}`, tableMarkdown(segment))}
-          </Box>
+          tableRows(look, segment, maxWidth, copyButton(look, `copy-${i}`, tableMarkdown(segment)))
         ) : (
           tableCard(look, segment, Svg, maxWidth, `copy-${i}`)
         )
