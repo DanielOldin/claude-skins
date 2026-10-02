@@ -395,8 +395,11 @@ test('the band offers Compact, nudges at 70% context, and compacts on a press', 
   await band.press({ key: 'compact' })
   // It starts on a timer, outside the press, so the press ending cannot cancel it.
   expect(compacted).toBe(0)
+  // Hidden until that run ends, so more presses cannot queue more runs.
+  expect(await band.find({ key: 'compact' })).toBeUndefined()
   await clock.advance(1)
   expect(compacted).toBe(1)
+  expect(await band.find({ key: 'compact' })).toBeDefined()
   expect(toasts).toEqual([])
   await band.unmount()
 

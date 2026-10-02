@@ -59,6 +59,7 @@ declare module 'claude-code' {
       usage: UsageSnap
       isLight: boolean
       images: StateFamily<boolean>
+      compacting: boolean
     }
   }
 }

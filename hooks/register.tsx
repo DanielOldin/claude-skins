@@ -46,6 +46,7 @@ const editingAtom = atom({ plugin: 'skins', key: 'editing' } as const, 'user' as
 const lightAtom = atom({ plugin: 'skins', key: 'isLight' } as const, false)
 const imagesAtom = atom({ plugin: 'skins', key: 'images' } as const, false)
 const usageAtom = atom({ plugin: 'skins', key: 'usage' } as const, { context: null, limits: [] } as UsageSnap)
+const compactingAtom = atom({ plugin: 'skins', key: 'compacting' } as const, false)
 
 const EDITS = new Set(['Edit', 'MultiEdit', 'Write'])
 
@@ -500,18 +501,22 @@ reply width: ${lastColumns} columns`
     // Compacting mid-turn would cut the turn's own context out from under it.
     // Runs Claude Code's own /compact, so the person sees its usual progress and result.
     // Work a press starts is abandoned when the press ends, which cancels a compaction
-    // still running, so a timer starts it in a dispatch of its own.
+    // still running, so a timer starts it in a dispatch of its own. The button hides
+    // until that run ends, so repeated presses do not queue one /compact each.
+    const isCompacting = await read($, compactingAtom)
     const compact = () => {
+      void update($, compactingAtom, () => true)
       $.clock.after(1, () => {
         $.command
           .run({ command: 'compact' })
           .catch((error: unknown) => $.ui.toast(`Compacting failed: ${error instanceof Error ? error.message : String(error)}`))
+          .finally(() => void update($, compactingAtom, () => false))
       })
     }
 
     return (
       <Box flexDirection="column">
-        {usageBand(look, meters, !e.props.isWorking, compact)}
+        {usageBand(look, meters, !e.props.isWorking && !isCompacting, compact)}
         {theirs}
       </Box>
     )
