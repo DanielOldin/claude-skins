@@ -499,10 +499,14 @@ reply width: ${lastColumns} columns`
     const theirs = await next(e)
     // Compacting mid-turn would cut the turn's own context out from under it.
     // Runs Claude Code's own /compact, so the person sees its usual progress and result.
+    // Work a press starts is abandoned when the press ends, which cancels a compaction
+    // still running, so a timer starts it in a dispatch of its own.
     const compact = () => {
-      $.command
-        .run({ command: 'compact' })
-        .catch((error: unknown) => $.ui.toast(`Compacting failed: ${error instanceof Error ? error.message : String(error)}`))
+      $.clock.after(1, () => {
+        $.command
+          .run({ command: 'compact' })
+          .catch((error: unknown) => $.ui.toast(`Compacting failed: ${error instanceof Error ? error.message : String(error)}`))
+      })
     }
 
     return (

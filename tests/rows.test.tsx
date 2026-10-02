@@ -367,7 +367,7 @@ const BAND = (surface: (typeof SURFACES)[number], isWorking: boolean) =>
 test('the band offers Compact, nudges at 70% context, and compacts on a press', async ($, on) => {
   let compacted = 0
   const toasts: string[] = []
-  mock.clock(on, { now: 10_000 })
+  const clock = mock.clock(on, { now: 10_000 })
   on('store.get', () => ({ value: undefined }))
   on('ui.toast', ($, e) => {
     toasts.push(e.text)
@@ -393,6 +393,9 @@ test('the band offers Compact, nudges at 70% context, and compacts on a press', 
   // A digit hotkey reaches it from an empty prompt where the terminal reports no clicks.
   expect(((await band.find({ key: 'compact' })) as { props: { hotkey?: string } } | undefined)?.props.hotkey).toBe('0')
   await band.press({ key: 'compact' })
+  // It starts on a timer, outside the press, so the press ending cannot cancel it.
+  expect(compacted).toBe(0)
+  await clock.advance(1)
   expect(compacted).toBe(1)
   expect(toasts).toEqual([])
   await band.unmount()
