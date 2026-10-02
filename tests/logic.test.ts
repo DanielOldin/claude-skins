@@ -3,7 +3,7 @@ import { expect, test } from 'claude-code/testing'
 import { DEFAULT_PREFS, parsePrefs, runSkinCommand } from '../hooks/command'
 import { buildCustom, resolveSkin, skinNames, withSlot } from '../hooks/custom'
 import { runDesign } from '../hooks/designer'
-import { clipLines, compactMessage, diffstat, formatDuration, formatMs, pick, shortenPath } from '../hooks/format'
+import { clipLines, diffstat, formatDuration, formatMs, pick, shortenPath } from '../hooks/format'
 import { columnWidths, padCell, splitReply } from '../hooks/markdown'
 import { codeSvg, tokenize } from '../hooks/svg-code'
 import { diffLines, diffSvg, hunksOf } from '../hooks/svg-diff'
@@ -272,10 +272,4 @@ test('a light palette is derived with dark text, light bands and deepened colour
   expect(deepen('#ffffff', 0.5)).toBe('#808080')
   expect(isLightTheme('light-daltonized')).toBe(true)
   expect(isLightTheme('dark')).toBe(false)
-})
-
-test('the toast after Compact says what the compaction came to', async () => {
-  expect(compactMessage({ tokensBefore: 150_000, tokensAfter: 20_000 })).toBe('Compacted: 150k → 20k tokens')
-  expect(compactMessage({ skip: 'nothing to compact' })).toBe('Not compacted: nothing to compact')
-  expect(compactMessage({})).toBe('Compacted')
 })

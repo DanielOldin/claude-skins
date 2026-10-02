@@ -7,7 +7,7 @@ import { buildCustom, resolveSkin, skinNames, withSlot } from './custom'
 import { forTheme, isLightTheme } from './light'
 import { DESIGN_TOOL, runDesign } from './designer'
 import type { DesignState } from './designer'
-import { clipLines, compactMessage, diffstat, pick } from './format'
+import { clipLines, diffstat, pick } from './format'
 import { splitReply } from './markdown'
 import { askBand, desktopSpinnerRow, diffCard, footerRow, terminalCard, usageBand, groupRow, promptRow, replyRows, spinnerRow, toolRow } from './rows'
 import type { Look, SvgElement, Ui } from './rows'
@@ -498,11 +498,10 @@ reply width: ${lastColumns} columns`
     const { Box } = look.ui
     const theirs = await next(e)
     // Compacting mid-turn would cut the turn's own context out from under it.
+    // Runs Claude Code's own /compact, so the person sees its usual progress and result.
     const compact = () => {
-      $.ui.toast('Compacting…')
-      $.session
-        .compact()
-        .then(result => $.ui.toast(compactMessage(result)))
+      $.command
+        .run({ command: 'compact' })
         .catch((error: unknown) => $.ui.toast(`Compacting failed: ${error instanceof Error ? error.message : String(error)}`))
     }
 
