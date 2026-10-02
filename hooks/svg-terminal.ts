@@ -1,5 +1,5 @@
 import type { Palette } from './skin'
-import { escape, fitText, MONO, pill, riseDelay, strokeIcon, svgCard } from './svg-kit'
+import { CONTROL_SLOT, escape, fitText, MONO, pill, riseDelay, strokeIcon, svgCard } from './svg-kit'
 
 // A shell command's output as a terminal card: a status pill, the output in mono with
 // stderr in the error colour, and long output folded to its head and tail.
@@ -50,7 +50,8 @@ export function outputLines(output: ShellOutput): Line[] {
     : [...kept.slice(0, HEAD), { fold: kept.length - HEAD - TAIL }, ...kept.slice(kept.length - TAIL)]
 }
 
-export function terminalSvg(output: ShellOutput, isErrored: boolean, palette: Palette, width: number): { source: string; height: number; alt: string } {
+// `hasControl` leaves the header's right corner free for a Copy button laid over it.
+export function terminalSvg(output: ShellOutput, isErrored: boolean, palette: Palette, width: number, hasControl = false): { source: string; width: number; height: number; alt: string } {
   const lines = outputLines(output)
   const status = output.interrupted
     ? { text: 'interrupted', color: palette.warn }
@@ -77,12 +78,13 @@ export function terminalSvg(output: ShellOutput, isErrored: boolean, palette: Pa
   const header = [
     strokeIcon(PROMPT, 16, 11, 18, palette.fg),
     `<text x="42" y="25" font-size="12" style="fill:${palette.muted};letter-spacing:.04em">${escape(note)}</text>`,
-    pill(width - 16, 10, status.text, status.color, palette),
+    pill(width - 16 - (hasControl ? CONTROL_SLOT : 0), 10, status.text, status.color, palette),
     `<line x1="0" y1="${HEADER_H - 0.5}" x2="${width}" y2="${HEADER_H - 0.5}" stroke="${palette.muted}" stroke-opacity=".3"/>`,
   ].join('')
 
   return {
     source: svgCard(width, height, palette, '', header + rows.join('')),
+    width,
     height,
     alt: lines.map(line => ('fold' in line ? `… ${line.fold} more lines` : line.text)).join('\n') || 'no output',
   }

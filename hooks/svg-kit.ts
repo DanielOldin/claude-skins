@@ -65,6 +65,9 @@ export const riseDelay = (index: number, stepMs: number, startMs = 80): string =
 
 const RADIUS = 12
 
+// The room a card leaves in its top-right corner for a Copy button laid over it.
+export const CONTROL_SLOT = 72
+
 // The card: a rounded hairline outline, with everything inside clipped to its corners.
 export function svgCard(width: number, height: number, palette: Palette, style: string, body: string): string {
   // Unique per size, so cards placed together in one document keep their own corners.

@@ -1,5 +1,5 @@
 import type { Palette } from './skin'
-import { escape, fitText, MONO, riseDelay, svgCard, tint } from './svg-kit'
+import { CONTROL_SLOT, escape, fitText, MONO, riseDelay, svgCard, tint } from './svg-kit'
 
 // A fenced code block as a card: the language and line count in a header, line numbers
 // in a gutter, and light highlighting of comments, strings, numbers and keywords.
@@ -69,7 +69,8 @@ function cutTokens(tokens: Token[], max: number): Token[] {
   return kept
 }
 
-export function codeSvg(code: string, lang: string, palette: Palette, width: number): { source: string; height: number; alt: string } {
+// `hasControl` leaves the header's right corner free for a Copy button laid over it.
+export function codeSvg(code: string, lang: string, palette: Palette, width: number, hasControl = false): { source: string; width: number; height: number; alt: string } {
   const all = code.replace(/\t/g, '  ').split('\n')
   const lines = all.slice(0, MAX_LINES)
   const gutter = String(all.length).length * 8 + 24
@@ -96,13 +97,14 @@ export function codeSvg(code: string, lang: string, palette: Palette, width: num
   const height = HEADER_H + 8 + lines.length * LINE_H + (hidden > 0 ? 28 : 10)
   const header = [
     `<text x="16" y="22" font-size="11" style="fill:${palette.muted};letter-spacing:.1em;font-weight:600">${escape((lang || 'code').toUpperCase())}</text>`,
-    `<text x="${width - 16}" y="22" text-anchor="end" font-size="11" style="fill:${palette.muted}">${all.length} line${all.length === 1 ? '' : 's'}</text>`,
+    `<text x="${width - 16 - (hasControl ? CONTROL_SLOT : 0)}" y="22" text-anchor="end" font-size="11" style="fill:${palette.muted}">${all.length} line${all.length === 1 ? '' : 's'}</text>`,
     `<line x1="0" y1="${HEADER_H - 0.5}" x2="${width}" y2="${HEADER_H - 0.5}" stroke="${palette.muted}" stroke-opacity=".3"/>`,
     `<g transform="translate(0 ${HEADER_H})">${tint(palette, 0, gutter - 4, height - HEADER_H, 0.04)}</g>`,
   ].join('')
 
   return {
     source: svgCard(width, height, palette, '', header + rows.join('') + footer),
+    width,
     height,
     alt: `${lang || 'code'}:\n${fitText(code, 4000, true, CODE)}`,
   }

@@ -1,6 +1,6 @@
 import type { Align, Table } from './markdown'
 import type { Palette } from './skin'
-import { escape, measure as measureAt, MONO, svgCard } from './svg-kit'
+import { CONTROL_SLOT, escape, measure as measureAt, MONO, svgCard } from './svg-kit'
 
 // A table as an animated vector card in the skin's colours, with no background of its
 // own so the page shows through, for the surfaces that draw `Svg` (the desktop app).
@@ -123,8 +123,8 @@ function naturalWidths(table: Table): number[] {
 // Columns that fit their fair share keep their natural width; the rest share what is
 // left in proportion to how much they hold, and wrap. With room to spare, every column
 // stretches in proportion, so the card spans its width.
-export function fitColumns(natural: readonly number[], width: number): number[] {
-  const room = width - PAD_X * 2 - COL_GAP * (natural.length - 1)
+export function fitColumns(natural: readonly number[], width: number, reserve = 0): number[] {
+  const room = width - PAD_X * 2 - reserve - COL_GAP * (natural.length - 1)
   const total = natural.reduce((sum, w) => sum + w, 0)
 
   if (total <= room) {
@@ -181,9 +181,11 @@ function cellMarkup(cell: Cell, left: number, width: number, align: Align, rowH:
 }
 
 // `width` is the room the reply gives the card, in pixels; it is clamped to a sane range.
-export function tableSvg(table: Table, palette: Palette, width: number): SvgTable {
+// `hasControl` keeps a gutter at the right for a Copy button laid over the header.
+export function tableSvg(table: Table, palette: Palette, width: number, hasControl = false): SvgTable {
   const cardWidth = Math.round(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, width)))
-  const widths = fitColumns(naturalWidths(table), cardWidth)
+  const reserve = hasControl ? CONTROL_SLOT : 0
+  const widths = fitColumns(naturalWidths(table), cardWidth, reserve)
   const lefts = widths.map((_, i) => PAD_X + widths.slice(0, i).reduce((sum, w) => sum + w + COL_GAP, 0))
   const align = (i: number): Align => table.align[i] ?? 'left'
 
@@ -224,7 +226,7 @@ export function tableSvg(table: Table, palette: Palette, width: number): SvgTabl
 
   const body = [
     header,
-    `<line class="rule" x1="${PAD_X}" y1="${HEADER_H - 1}" x2="${cardWidth - PAD_X}" y2="${HEADER_H - 1}" stroke="${palette.user}" stroke-width="1" stroke-linecap="square"/>`,
+    `<line class="rule" x1="${PAD_X}" y1="${HEADER_H - 1}" x2="${cardWidth - PAD_X - reserve}" y2="${HEADER_H - 1}" stroke="${palette.user}" stroke-width="1" stroke-linecap="square"/>`,
     rows,
   ].join('')
 

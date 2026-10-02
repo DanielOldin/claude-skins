@@ -458,3 +458,24 @@ test('code blocks, tables and shell output get a Copy button that copies their t
 
   expect(copied).toEqual(['const a = 1', '| A | B |\n| --- | --- |\n| 1 | 2 |', 'const a = 1', '| A | B |\n| --- | --- |\n| 1 | 2 |', 'built ok'])
 })
+
+test('on the desktop the Copy button is laid over the card, in the corner the card leaves free', async ($, on) => {
+  stubEngine(on)
+  on('ui.copy', () => ({ value: { isCopied: true } }))
+
+  const ui = await $.ui.mount({
+    ...SITE,
+    surface: 'desktop',
+    component: 'AssistantMessage',
+    requestId: 'ov',
+    props: { text: '```ts\nconst a = 1\n```', isFirstOfReply: true },
+  })
+  type Node = { type?: string; props?: Record<string, unknown>; children?: readonly Node[] }
+  const reply = (await ui.find({ type: 'Box' })) as Node
+  const card = reply.children?.[0]
+  const overlay = card?.children?.[1]
+
+  expect(card?.props?.alignSelf).toBe('flex-start')
+  expect(overlay?.props?.position).toBe('absolute')
+  expect(overlay?.children?.[0]?.type).toBe('Button')
+})
