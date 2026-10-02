@@ -56,6 +56,19 @@ export function diffstat(output: unknown): { added: number; removed: number } | 
   }
 }
 
+// What a compaction came to, for the toast after Compact.
+export function compactMessage(result: { skip?: string; tokensBefore?: number; tokensAfter?: number }): string {
+  if (result.skip !== undefined) {
+    return `Not compacted: ${result.skip}`
+  }
+
+  if (result.tokensBefore !== undefined && result.tokensAfter !== undefined) {
+    return `Compacted: ${Math.round(result.tokensBefore / 1000)}k → ${Math.round(result.tokensAfter / 1000)}k tokens`
+  }
+
+  return 'Compacted'
+}
+
 // The same seed always picks the same item, so a row keeps its word when it redraws.
 export function pick<T>(items: readonly T[], seed: string): T | undefined {
   let hash = 5381

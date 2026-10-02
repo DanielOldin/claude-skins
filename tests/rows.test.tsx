@@ -374,9 +374,9 @@ test('the band offers Compact, nudges at 70% context, and compacts on a press', 
     return { value: undefined }
   })
   on('ui.render', () => STOCK)
-  on('session.compact', () => {
+  on('session.compact', ($, e) => {
     compacted += 1
-    return { messages: [], tokensBefore: 150_000, tokensAfter: 20_000 }
+    return { messages: e.messages, tokensBefore: 150_000, tokensAfter: 20_000 }
   })
   on('session.usage', () => ({ value: { startedAt: 0, context: { window: 200000, percent: 85 }, rateLimits: [] } }))
   on('session.start', () => ({ cwd: '/work' }))
@@ -391,7 +391,7 @@ test('the band offers Compact, nudges at 70% context, and compacts on a press', 
   expect(((await band.find({ key: 'compact' })) as { props: { hotkey?: string } } | undefined)?.props.hotkey).toBe('0')
   await band.press({ key: 'compact' })
   expect(compacted).toBe(1)
-  expect(toasts).toContain('Compacted: 150k → 20k tokens')
+  expect(toasts[0]).toBe('Compacting…')
   await band.unmount()
 
   const busy = await $.ui.mount(BAND('terminal', true))

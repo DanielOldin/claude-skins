@@ -7,7 +7,7 @@ import { buildCustom, resolveSkin, skinNames, withSlot } from './custom'
 import { forTheme, isLightTheme } from './light'
 import { DESIGN_TOOL, runDesign } from './designer'
 import type { DesignState } from './designer'
-import { clipLines, diffstat, pick } from './format'
+import { clipLines, compactMessage, diffstat, pick } from './format'
 import { splitReply } from './markdown'
 import { askBand, desktopSpinnerRow, diffCard, footerRow, terminalCard, usageBand, groupRow, promptRow, replyRows, spinnerRow, toolRow } from './rows'
 import type { Look, SvgElement, Ui } from './rows'
@@ -502,16 +502,8 @@ reply width: ${lastColumns} columns`
       $.ui.toast('Compacting…')
       $.session
         .compact()
-        .then(result => {
-          if (result.skip !== undefined) {
-            $.ui.toast(`Not compacted: ${result.skip}`)
-          } else if (result.tokensBefore !== undefined && result.tokensAfter !== undefined) {
-            $.ui.toast(`Compacted: ${Math.round(result.tokensBefore / 1000)}k → ${Math.round(result.tokensAfter / 1000)}k tokens`)
-          } else {
-            $.ui.toast('Compacted')
-          }
-        })
-        .catch(() => $.ui.toast('Compacting failed. Try /compact.'))
+        .then(result => $.ui.toast(compactMessage(result)))
+        .catch((error: unknown) => $.ui.toast(`Compacting failed: ${error instanceof Error ? error.message : String(error)}`))
     }
 
     return (
