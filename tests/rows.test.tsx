@@ -366,13 +366,17 @@ const BAND = (surface: (typeof SURFACES)[number], isWorking: boolean) =>
 
 test('the band offers Compact, nudges at 70% context, and compacts on a press', async ($, on) => {
   let compacted = 0
+  const toasts: string[] = []
   mock.clock(on, { now: 10_000 })
   on('store.get', () => ({ value: undefined }))
-  on('ui.toast', () => ({ value: undefined }))
+  on('ui.toast', ($, e) => {
+    toasts.push(e.text)
+    return { value: undefined }
+  })
   on('ui.render', () => STOCK)
   on('session.compact', () => {
     compacted += 1
-    return { messages: [] }
+    return { messages: [], tokensBefore: 150_000, tokensAfter: 20_000 }
   })
   on('session.usage', () => ({ value: { startedAt: 0, context: { window: 200000, percent: 85 }, rateLimits: [] } }))
   on('session.start', () => ({ cwd: '/work' }))
@@ -383,8 +387,11 @@ test('the band offers Compact, nudges at 70% context, and compacts on a press', 
 
   const band = await $.ui.mount(BAND('desktop', false))
   expect(await band.find({ type: 'Text', text: 'Context is 85% full' })).toBeDefined()
+  // A digit hotkey reaches it from an empty prompt where the terminal reports no clicks.
+  expect(((await band.find({ key: 'compact' })) as { props: { hotkey?: string } } | undefined)?.props.hotkey).toBe('0')
   await band.press({ key: 'compact' })
   expect(compacted).toBe(1)
+  expect(toasts).toContain('Compacted: 150k → 20k tokens')
   await band.unmount()
 
   const busy = await $.ui.mount(BAND('terminal', true))

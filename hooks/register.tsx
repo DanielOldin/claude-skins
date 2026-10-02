@@ -500,7 +500,18 @@ reply width: ${lastColumns} columns`
     // Compacting mid-turn would cut the turn's own context out from under it.
     const compact = () => {
       $.ui.toast('Compacting…')
-      $.session.compact().catch(() => $.ui.toast('Compacting failed. Try /compact.'))
+      $.session
+        .compact()
+        .then(result => {
+          if (result.skip !== undefined) {
+            $.ui.toast(`Not compacted: ${result.skip}`)
+          } else if (result.tokensBefore !== undefined && result.tokensAfter !== undefined) {
+            $.ui.toast(`Compacted: ${Math.round(result.tokensBefore / 1000)}k → ${Math.round(result.tokensAfter / 1000)}k tokens`)
+          } else {
+            $.ui.toast('Compacted')
+          }
+        })
+        .catch(() => $.ui.toast('Compacting failed. Try /compact.'))
     }
 
     return (

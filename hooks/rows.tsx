@@ -501,6 +501,8 @@ export function terminalCard(look: Look, Svg: SvgElement, output: ShellOutput, i
 // From this full, the band suggests compacting and makes it the main action.
 export const COMPACT_NUDGE = 70
 
+export const COMPACT_HOTKEY = '0'
+
 function meterView(look: Look, meters: readonly Meter[]) {
   const { Box, Text } = look.ui
   const { palette } = look.skin
@@ -539,9 +541,13 @@ export function usageBand(look: Look, meters: readonly Meter[], canCompact: bool
       <Box flexGrow={1} />
       {canCompact && isNudge ? <Text color={palette.warn}>{`Context is ${context}% full`}</Text> : ''}
       {canCompact ? (
+        // A digit hotkey: typed alone into an empty prompt it presses the band's button, which
+        // is the only way in where the terminal reports no clicks. `plain` shows it: `0: Compact`.
         <Button
           key="compact"
           label={isNudge ? 'Compact now' : 'Compact'}
+          hotkey={COMPACT_HOTKEY}
+          plain
           {...(isNudge ? { variant: 'primary' as const } : { dimColor: true })}
           onPress={compact}
         />
