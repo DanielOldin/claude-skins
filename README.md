@@ -6,6 +6,8 @@ animated cards, shell output in a terminal card, a spinner that shows what Claud
 above the prompt with your context and plan limits and a Compact button. Seven skins, light and dark,
 a settings page, and your own agent can design a new skin with you.
 
+<img alt="The same Claude Code turn switching skins with /skin: noir, Tokyo Night, Dracula, Catppuccin" src="docs/demo.gif">
+
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="docs/previews/hero-light.svg">
   <img alt="A Claude Code turn with the noir skin: tool rows with icons, an edit as a diff card, and a table card" src="docs/previews/hero-dark.svg">
