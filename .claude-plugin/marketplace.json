@@ -1,7 +1,7 @@
 {
-  "name": "hellosverre-mods",
+  "name": "do-mods",
   "description": "Mods for Claude Code that change how it looks.",
-  "owner": { "name": "hellosverre", "url": "https://github.com/hellosverre" },
+  "owner": { "name": "DanielOldin", "url": "https://github.com/DanielOldin" },
   "plugins": [
     {
       "name": "skins",
