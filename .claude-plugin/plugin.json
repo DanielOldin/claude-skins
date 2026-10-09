@@ -1,8 +1,8 @@
 {
   "name": "skins",
-  "version": "0.1.2",
-  "description": "Skins for Claude Code's transcript: themed tool rows, reply gutters and spinner words. /skin swaps them live.",
-  "author": { "name": "hellosverre", "url": "https://github.com/hellosverre" },
+  "version": "0.1.3",
+  "description": "Skins for Claude Code's transcript: themed tool rows, reply gutters and spinner words. /skin swaps them live. Fork of hellosverre/claude-skins.",
+  "author": { "name": "DanielOldin", "url": "https://github.com/DanielOldin" },
   "license": "MIT",
   "keywords": ["claude-code-mods", "claude-mods", "function-hooks", "theme", "skin"],
   "types": "./types/index.d.ts"
